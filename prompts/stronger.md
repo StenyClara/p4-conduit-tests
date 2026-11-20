@@ -1,0 +1,4 @@
+Changes: In @P4/tests/profile-follow/signed-in-user-unfollows-and-follows-author-persists-after-reload.spec.ts: It unfollows and follows on practice-reader, a shared user, so it must sign up its own new user by API and use that user instead.
+New tests: Only one test checks posting a comment on an article. Write P4/tests/comments.spec.ts with 2 API tests: a new user posts a comment on an article, and the answer has the same body text and the author is that user; then a GET of the comments list for that article shows this comment in the list.Each test must sign up its own new user by API and must not use practice-reader or any shared user. Check the status code and the body, not only the status.
+Material: @P4/API.md @P4/tests/e2e.spec.ts Make users and data by API, and clean up, like these tests.
+Rules: Write the tests from API.md only. Do not read the app's code in P4/app. Change nothing else. Do not run the tests.
