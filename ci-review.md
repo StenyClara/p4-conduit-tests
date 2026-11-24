@@ -31,23 +31,30 @@ Rules: Use actions/checkout@v6, actions/setup-node@v6 and actions/upload-artifac
 - **Packages, browser, tests and the report (lines 20–36):** 21–22: Names the step and installs the exact project dependencies using npm ci; 24–25: Names the step and installs Chromium along with its required system dependencies; 27–28: Names the step and runs the Playwright test suite; 30: Names the step to save the HTML test report; 31: Uploads the report unless the workflow is cancelled; 32: Uses actions/upload-artifact@v6 to upload the report; 33: Provides configuration options; 34: Names the uploaded artifact playwright-report; 35: Specifies the folder containing the HTML report; 36: Keeps the report for 30 days before deleting it.
 
 ## 5. The first run on GitHub
-- **Run:** Add the CI workflow · **Result:** … · **Tests:** …
-- **The report (artifact):** …
+- **Run:** Add the CI workflow · **Result:** green · **Tests:** 21 passed
+- **The report (artifact):** yes, playwright-report is under Artifacts (I downloaded it)
 
 ## 6. A red run on purpose
 - **The change:** `tests/example.spec.ts` line 6, `toBe(200)` → `toBe(201)`
-- **My prediction:** …
-- **What GitHub showed:** …
+- **My prediction:** The step that runs the Playwright tests turns red because line 6 expects status 201, but a GET request to `/api/tags` should return 200 (OK), not 201 (Created).
+- **What GitHub showed:** Expected: 201 Received: 200
 
 ## 7. Fixed, and green again
-- **The fix:** line 6 back to `toBe(200)` · **Run:** Fix the expected status · **Result:** …
+- **The fix:** line 6 back to `toBe(200)` · **Run:** Fix the expected status · **Result:** 20 passed, 1 failed but result says 21 passed
 
 ## 8. Review notes for my other AI-written tests (written while CI ran)
 The API checklist: status · body · shape · negative cases (a refused request changes nothing) · own test data.
 Monday's and Tuesday's tests that I did not review in depth on those days. Each one: kept, changed or removed, and why.
 
 ### Monday: `tests/api.spec.ts`
-- "…": **kept / changed / removed**, because …
+- "reads an article without a token": **kept**, because Checks 200, slug, title, body, author, favorited false and favoritesCount 0, verifying the response without changing data
+- "deletes an article, and GET then answers 404": **kept**, because Checks 204 and an empty body, then confirms the article returns 404 after deletion
+- "does not create an article without a title": **kept**, because Checks 422 and "can't be blank", then confirms the author's article list is empty
+- "does not change an article without a token": **kept**, because Checks 401 and "is missing", then verifies the article remains unchanged without a token
+- "does not let another user change the author's article": **kept**, because Checks 403 and "forbidden", then verifies another user cannot modify the author's article
+- "does not let another user delete the author's article": **kept**, because Checks 403 and "forbidden", then verifies another user cannot delete the author's article
 
 ### Tuesday: `tests/contract.spec.ts`
-- "…": **kept / changed / removed**, because …
+- "GET /api/user answers with the User shape from API.md": **kept**, because Checks 200, exact wrapper and user key lists, email, token, username, bio null and image null, verifying the correct API response shape
+- "PUT /api/user without a token is refused, and the user stays the same": **kept**, because Checks 401 and "is missing", then reads the user again to confirm email, username, bio and image remain unchanged without a token
+- "PUT /api/user with a wrong token is refused, and the user stays the same": **kept**, because Checks 401 and "is invalid", then reads the user again to confirm email, username, bio and image remain unchanged with a wrong token
